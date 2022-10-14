@@ -14,7 +14,7 @@ def remove_containers_inactive():
     cont = docker.containers.prune()
     return cont
 
-def remove_containers_inactive():
+def remove_networks():
     net = docker.networks.prune()
     return net
 
@@ -32,7 +32,8 @@ def remove_containers_active():
 
 if __name__ == '__main__':
     print(dispay_image())
-    print(remove_containers_active())
-    print(remove_volumes())
-    print(remove_containers_inactive())
     print(remove_image())
+    print(remove_containers_inactive())
+    print(remove_networks())
+    print(remove_volumes())
+    print(remove_containers_active())
