@@ -28,8 +28,8 @@ def remove_volumes():
 
 def remove_containers_active():
     containers = docker.containers.list(all=True)
+    
     if containers == []:
-
         return "{'Active Container list is empty': None}"
     else:
         for cont in containers:
