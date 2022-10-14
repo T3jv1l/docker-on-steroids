@@ -1,4 +1,3 @@
-from queue import Empty
 import docker
 
 docker = docker.from_env()
