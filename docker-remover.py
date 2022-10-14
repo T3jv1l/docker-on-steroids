@@ -4,7 +4,7 @@ import time
 
 docker = docker.from_env()
 
-def dispay_image():
+def display_image():
     list = docker.images.list(all=True)
 
     if list == []:
