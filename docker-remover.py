@@ -1,5 +1,5 @@
 import docker
-
+import time
 docker = docker.from_env()
 
 def dispay_image():
@@ -23,6 +23,7 @@ def remove_networks():
     return net
 
 def remove_volumes():
+    time.sleep(0.5)
     vol = docker.volumes.prune()
     return vol 
 
