@@ -40,45 +40,28 @@ def remove_containers_active():
             cont.remove(force=True)
         return containers
 
-parser = argparse.ArgumentParser()
-subparsers = parser.add_subparsers()
+def argument():
+    parser = argparse.ArgumentParser()
+    # subparsers = parser.add_subparsers()
 
-parser.add_argument('-all',type=str, required=False,help="purge all docker containers",metavar='purge')
+    parser.add_argument('-all',type=str, required=False,help="purge all docker containers",metavar='purge')
 
-parser_display_image = subparsers.add_parser('image', help='list image docker')
-parser_display_image.set_defaults(func=display_image)
+    if len(sys.argv) <= 1:
+        sys.argv.append('--help')
 
-parser_remove_networks = subparsers.add_parser('rn', help='remove network')
-parser_remove_networks.set_defaults(func=remove_networks)
+    options = parser.parse_args()
 
-parser_remove_containers_inactive = subparsers.add_parser('rc', help='remove container inactive')
-parser_remove_containers_inactive.set_defaults(func=remove_containers_inactive)
-
-parser_remove_volumes = subparsers.add_parser('rv', help='remove volumes')
-parser_remove_volumes.set_defaults(func=remove_volumes)
-
-parser_remove_containers_active = subparsers.add_parser('ra', help='remove containers active')
-parser_remove_containers_active.set_defaults(func=remove_containers_active)
-
-parser_remove_image = subparsers.add_parser('ri', help='remove image')
-parser_remove_image.set_defaults(func=remove_image)
-
-if len(sys.argv) <= 1:
-    sys.argv.append('--help')
-
-options = parser.parse_args()
-
-if options.all == "purge":
-    print(display_image())
-    print(remove_networks())
-    print(remove_containers_inactive())
-    print(remove_volumes())
-    print(remove_containers_active())
-    print(remove_image())
-    
-    exit()
+    if options.all == "purge":
+        print(display_image())
+        print(remove_networks())
+        print(remove_containers_inactive())
+        print(remove_volumes())
+        print(remove_containers_active())
+        print(remove_image())
+        
+        exit()
 
 if __name__ == '__main__':
-    print(options.func())
+    argument()
     # print(remove_containers_active())
     # print(remove_image())
