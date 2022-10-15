@@ -2,8 +2,34 @@ import docker
 import time
 import argparse
 import sys
+import paramiko
 
 docker = docker.from_env()
+
+parser = argparse.ArgumentParser()
+subparser = parser.add_subparsers(dest='remote')
+
+ssh = subparser.add_parser('ssh')
+
+parser.add_argument('-all',type=str, required=False, help="purge all docker containers", metavar='purge')
+
+ssh.add_argument('--host', type=str ,required=True, help="Host require", metavar='10.x.x.x.x')
+ssh.add_argument('--user', type=str ,required=True, help="Username require", metavar='admin')
+ssh.add_argument('--password', type=str ,required=True, help="Password require", metavar='password')
+ssh.add_argument('--port', type=str ,required=True, help="port require", metavar='22')
+
+if len(sys.argv) <= 1:
+    sys.argv.append('--help')
+
+options = parser.parse_args()
+
+def connect(host, user, password=None, port=None,timeout=4):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    if password is not None:
+        client.connect(hostname=host, username=user, password=password, port=port, timeout=timeout)
+    return client
 
 def display_image():
     list = docker.images.list(all=True)
@@ -41,15 +67,7 @@ def remove_containers_active():
         return containers
 
 def argument():
-    parser = argparse.ArgumentParser()
-    # subparsers = parser.add_subparsers()
 
-    parser.add_argument('-all',type=str, required=False,help="purge all docker containers",metavar='purge')
-
-    if len(sys.argv) <= 1:
-        sys.argv.append('--help')
-
-    options = parser.parse_args()
 
     if options.all == "purge":
         print(display_image())
@@ -60,6 +78,29 @@ def argument():
         print(remove_image())
         
         exit()
+        
+    elif options.remote == 'ssh':
+        try:
+            password = options.password
+            user = options.user
+            host = options.host
+            port = options.port
+
+            #client = docker.DockerClient(client_call=["docker", f'--host=ssh://{host}'])
+            client = connect(host=host, user=user, password=password, port=port)
+            host = '{}@{}:{}'.format(user, host, port)
+            print(host)
+            stdin, stdout, stderr = client.exec_command("ls")
+            # print(display_image())
+            lines = stdout.readlines()
+
+            print(lines)
+
+            client.close()
+
+        except paramiko.AuthenticationException:
+            print ("[?] We had an authentication error!")
+
 
 if __name__ == '__main__':
     argument()
