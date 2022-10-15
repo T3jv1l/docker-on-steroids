@@ -67,8 +67,6 @@ def remove_containers_active():
         return containers
 
 def argument():
-
-
     if options.all == "purge":
         print(display_image())
         print(remove_networks())
