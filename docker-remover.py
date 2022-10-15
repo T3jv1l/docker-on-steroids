@@ -1,3 +1,4 @@
+from encodings import utf_8
 import docker
 import time
 import argparse
@@ -84,17 +85,13 @@ def argument():
             host = options.host
             port = options.port
 
-            #client = docker.DockerClient(client_call=["docker", f'--host=ssh://{host}'])
-            client = connect(host=host, user=user, password=password, port=port)
-            host = '{}@{}:{}'.format(user, host, port)
-            print(host)
-            stdin, stdout, stderr = client.exec_command("ls")
-            # print(display_image())
-            lines = stdout.readlines()
+            s = connect(host=host, user=user, password=password, port=port)
 
-            print(lines)
-
-            client.close()
+            stdin, stdout, stderr = s.exec_command("docker image ls")
+            for line in stdout.readlines():
+                print(line)
+   
+            s.close()
 
         except paramiko.AuthenticationException:
             print ("[?] We had an authentication error!")
