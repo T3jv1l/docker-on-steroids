@@ -1,4 +1,3 @@
-from encodings import utf_8
 import docker
 import time
 import argparse
@@ -10,7 +9,7 @@ docker = docker.from_env()
 parser = argparse.ArgumentParser()
 subparser = parser.add_subparsers(dest='remote')
 
-ssh = subparser.add_parser('ssh')
+ssh = subparser.add_parser('ssh-remove')
 
 parser.add_argument('-all',type=str, required=False, help="purge all docker containers", metavar='purge')
 
@@ -78,7 +77,7 @@ def argument():
         
         exit()
         
-    elif options.remote == 'ssh':
+    elif options.remote == 'ssh-remove':
         try:
             password = options.password
             user = options.user
@@ -87,10 +86,12 @@ def argument():
 
             s = connect(host=host, user=user, password=password, port=port)
 
-            stdin, stdout, stderr = s.exec_command("docker image ls")
-            for line in stdout.readlines():
-                print(line)
-   
+            stdin, stdout, stderr = s.exec_command("docker system prune -a --force")
+            print(stdout.read().decode())
+            stdin, stdout, stderr = s.exec_command("docker stop $(docker ps -aq)")
+            print(stdout.read().decode())
+            stdin, stdout, stderr = s.exec_command("docker network prune --force")
+            print(stdout.read().decode())
             s.close()
 
         except paramiko.AuthenticationException:
