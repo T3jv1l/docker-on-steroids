@@ -3,6 +3,10 @@ import time
 import argparse
 import sys
 import paramiko
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 docker = docker.from_env()
 
@@ -15,7 +19,7 @@ parser.add_argument('-all',type=str, required=False, help="purge all docker cont
 
 ssh.add_argument('--host', type=str ,required=True, help="Host require", metavar='10.x.x.x.x')
 ssh.add_argument('--user', type=str ,required=True, help="Username require", metavar='admin')
-ssh.add_argument('--password', type=str ,required=True, help="Password require", metavar='password')
+# ssh.add_argument('--password', type=str ,required=True, help="Password require", metavar='password')
 ssh.add_argument('--port', type=str ,required=True, help="port require", metavar='22')
 
 if len(sys.argv) <= 1:
@@ -79,7 +83,10 @@ def argument():
         
     elif options.remote == 'ssh-remove':
         try:
-            password = options.password
+            env_path='.env'
+            load_dotenv(dotenv_path=env_path)
+            # password = options.password
+            password = os.getenv('PASSWORD')
             user = options.user
             host = options.host
             port = options.port
