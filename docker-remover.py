@@ -88,12 +88,15 @@ def argument():
 
             stdin, stdout, stderr = s.exec_command("docker system prune -a --force")
             print(stdout.read().decode())
-            stdin, stdout, stderr = s.exec_command("docker stop $(docker ps -aq)")
+            stdin, stdout, stderr = s.exec_command("docker container stop $(docker container ls -aq)")
             print(stdout.read().decode())
             stdin, stdout, stderr = s.exec_command("docker network prune --force")
             print(stdout.read().decode())
+            stdin, stdout, stderr = s.exec_command("docker container rm $(docker container ls -aq)")
+            print(stdout.read().decode())
+            stdin, stdout, stderr = s.exec_command("docker rmi $(docker images -aq)")
+            print(stdout.read().decode())
             s.close()
-
         except paramiko.AuthenticationException:
             print ("[?] We had an authentication error!")
 
