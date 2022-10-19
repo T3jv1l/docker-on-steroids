@@ -34,7 +34,6 @@ class DockeronSteroids():
         self.options = self.parser.parse_args()
 
 if __name__ == '__main__':
-    load_dotenv()
 
     test = DockeronSteroids()
     test.run()
