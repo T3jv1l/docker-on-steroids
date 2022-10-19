@@ -16,6 +16,7 @@ subparser = parser.add_subparsers(dest='remote')
 ssh = subparser.add_parser('ssh-remove')
 
 parser.add_argument('-all',type=str, required=False, help="purge all docker containers", metavar='purge')
+parser.add_argument('-search',type=str, required=False, help='search all docker-compose.yml file', metavar='docker-compose.yml')
 
 ssh.add_argument('--host', type=str ,required=True, help="Host require", metavar='10.x.x.x.x')
 ssh.add_argument('--user', type=str ,required=True, help="Username require", metavar='admin')
@@ -107,8 +108,18 @@ def argument():
         except paramiko.AuthenticationException:
             print ("[?] We had an authentication error!")
 
+def search_docker_compose():
+        if options.search == "docker-compose.yml":
+            with open('docker_compose_location.txt', 'w') as f:
+                for root, dirs, files in os.walk("/"):
+                    for file_docker in files:
+                        if file_docker.endswith("docker-compose.yml"):
+                            print(os.path.join(root, file_docker), file=f)
+                else:
+                    exit()
 
 if __name__ == '__main__':
     argument()
+    search_docker_compose()
     # print(remove_containers_active())
     # print(remove_image())
