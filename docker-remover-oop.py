@@ -96,5 +96,9 @@ class DockeronSteroids():
         self.__arguments(self.options)
 
 if __name__ == '__main__':
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2199fe9160f4f38b3bd511fa2295197d20c3e3dc
     test = DockeronSteroids()
     test.run()
