@@ -1,16 +1,17 @@
-from email.message import Message
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+warnings.filterwarnings(action='ignore', category=CryptographyDeprecationWarning)
 import docker
 import time
 import argparse
 import sys
-import paramiko
+from dotenv import main
 import os
-from dotenv import load_dotenv
+import paramiko
 
 class DockeronSteroids():
     def __init__(self) -> None:
         """Construct all the necessary attributes"""
-        load_dotenv()
         self.docker_env = docker.from_env()
         self.parser = argparse.ArgumentParser()
 
@@ -25,8 +26,17 @@ class DockeronSteroids():
         
         ssh = subparser.add_parser('ssh-remove')
         ssh.add_argument('--host', type=str ,required=True, help="Host require", metavar='10.x.x.x.x')
-        ssh.add_argument('--user', type=str ,required=True, help="Username require", metavar='admin')
-        ssh.add_argument('--port', type=str ,required=True, help="port require", metavar='22')
+        ssh.add_argument('--port', type=str ,required=True, help="Port require", metavar='22')
+
+        self.remote_ssh = self.parser.parse_args()
+
+    def __connect_remote(self, host, user, password=None, port=None,timeout=4):
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        if password is not None:
+            client.connect(hostname=host, username=user, password=password, port=port, timeout=timeout)
+        return client
 
     def __check(self):
         """Checking the number of arguments"""
@@ -74,6 +84,35 @@ class DockeronSteroids():
                 cont.remove(force=True)
             return containers
     
+    def __remove_remote(self):
+        """Calling all the fucntion to remove remote all the docker which is running"""
+        env_path='.env'
+        main.load_dotenv(dotenv_path=env_path)
+        if self.remote_ssh.remote == 'ssh-remove':
+            try:
+                user = os.getenv('SECRET_USER')
+                password = os.getenv('SECRET_PASSWORD')
+                host = self.remote_ssh.host
+                port = self.remote_ssh.port
+        
+                ssh_connect_remote = self.__connect_remote(host=host, user=user, password=password, port=port)
+                
+                stdin, stdout, stderr = ssh_connect_remote.exec_command("docker system prune -a --force")
+                print(stdout.read().decode())
+                stdin, stdout, stderr = ssh_connect_remote.exec_command("docker container stop $(docker container ls -aq)")
+                print(stdout.read().decode())
+                stdin, stdout, stderr = ssh_connect_remote.exec_command("docker network prune --force")
+                print(stdout.read().decode())
+                stdin, stdout, stderr = ssh_connect_remote.exec_command("docker container rm $(docker container ls -aq)")
+                print(stdout.read().decode())
+                stdin, stdout, stderr = ssh_connect_remote.exec_command("docker rmi $(docker images -aq)")
+                print(stdout.read().decode())
+               
+                ssh_connect_remote.close()
+        
+            except paramiko.AuthenticationException:
+                print ("[?] We had an authentication error!")
+
     def __remove(self):
         """Calling all the functions responsable for purging the docker"""
         print(self.__display_image())
@@ -83,10 +122,14 @@ class DockeronSteroids():
         print(self.__remove_containers_active())
         print(self.__remove_image())
 
+
     def __arguments(self, options):
         print(options)
         if options.all:
             self.__remove()
+            exit()
+        elif options.remote:
+            self.__remove_remote()
             exit()
 
     def run(self):
