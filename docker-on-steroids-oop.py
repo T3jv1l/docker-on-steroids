@@ -21,6 +21,8 @@ class DockeronSteroids():
                      help='search all docker-compose.yml file', metavar=' --search')
         self.parser.add_argument("-a", "--all" ,help="purge all docker containers",
                     action="store_true")
+        self.parser.add_argument("-e", "--env" ,help="define .env file",
+                    action="store_true")
 
         subparser = self.parser.add_subparsers(dest='remote')
         
@@ -83,9 +85,25 @@ class DockeronSteroids():
             for cont in containers:
                 cont.remove(force=True)
             return containers
-    
+
+    def __create_env(self):
+        """Create environment file for remote connection"""
+        PATH=".env"
+        username = 'SECRET_USER=change_me'
+        password = 'SECRET_PASSWORD=change_me'
+        
+        f = open(".env", "w")
+        f.write(username + "\n")
+        f.write(password + "\n")
+        f.close()
+        
+        if os.path.isfile(PATH) and os.access(PATH, os.R_OK):
+            print("[+] File exists and is readable!!")
+        else:
+            print("[+] Either the file is missing or not readable!!")
+
     def __remove_remote(self):
-        """Calling all the fucntion to remove remote all the docker which is running"""
+        """Calling all the function to remove remote all the docker which is running"""
         env_path='.env'
         main.load_dotenv(dotenv_path=env_path)
         if self.remote_ssh.remote == 'ssh-remove':
@@ -124,12 +142,14 @@ class DockeronSteroids():
 
 
     def __arguments(self, options):
-        print(options)
         if options.all:
             self.__remove()
             exit()
         elif options.remote:
             self.__remove_remote()
+            exit()
+        elif options.env:
+            self.__create_env()
             exit()
 
     def run(self):
@@ -141,3 +161,4 @@ class DockeronSteroids():
 if __name__ == '__main__':
     test = DockeronSteroids()
     test.run()
+
