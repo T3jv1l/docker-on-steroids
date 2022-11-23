@@ -3,10 +3,10 @@ import time
 import argparse
 import sys
 import paramiko
-from dotenv import load_dotenv
+from dotenv import main
 import os
 
-load_dotenv()
+main.load_dotenv()
 
 docker = docker.from_env()
 
@@ -109,11 +109,12 @@ def argument():
             print ("[?] We had an authentication error!")
 
 def search_docker_compose():
-        if options.search == "docker-compose.yml":
-            with open('docker_compose_location.txt', 'w') as f:
+        search = options.search
+        if options.search == search:
+            with open(search+'_location.txt', 'w') as f:
                 for root, dirs, files in os.walk("/"):
                     for file_docker in files:
-                        if file_docker.endswith("docker-compose.yml"):
+                        if file_docker.endswith(search):
                             print(os.path.join(root, file_docker), file=f)
                 else:
                     exit()

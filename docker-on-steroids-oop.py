@@ -17,8 +17,8 @@ class DockeronSteroids():
 
     def __setArgs(self):
         """Setting the arguments"""
-        self.parser.add_argument('-s',type=str, required=False,
-                     help='search all docker-compose.yml file', metavar=' --search')
+        self.parser.add_argument('--search',type=str, required=False,
+                     help='search all docker-compose.yml file', metavar='docker-compose.yml')
         self.parser.add_argument("-a", "--all" ,help="purge all docker containers",
                     action="store_true")
         self.parser.add_argument("-e", "--env" ,help="define .env file",
@@ -130,6 +130,25 @@ class DockeronSteroids():
         
             except paramiko.AuthenticationException:
                 print ("[?] We had an authentication error!")
+   
+    def __search_docker_compose(self):
+            """Search file with specific name"""
+            
+            search = self.options.search #seach for specific file
+
+            print("[+] Start Crawl files!")
+
+            if self.options.search == search:
+                with open(search + '_location.txt', 'w') as f:
+                    for root, dirs, files in os.walk("/"):
+                        for file_docker in files:
+                            if file_docker.endswith(search):
+                                print(os.path.join(root, file_docker), file=f)
+                            
+                    else:
+                        print("[+] Done!!")
+                        exit()
+                
 
     def __remove(self):
         """Calling all the functions responsable for purging the docker"""
@@ -150,6 +169,9 @@ class DockeronSteroids():
             exit()
         elif options.env:
             self.__create_env()
+            exit()
+        elif options.search:
+            self.__search_docker_compose()
             exit()
 
     def run(self):
