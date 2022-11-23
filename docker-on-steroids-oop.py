@@ -17,8 +17,8 @@ class DockeronSteroids():
 
     def __setArgs(self):
         """Setting the arguments"""
-        self.parser.add_argument('--search',type=str, required=False,
-                     help='search all docker-compose.yml file', metavar='docker-compose.yml')
+        self.parser.add_argument('-s','--search',type=str, required=False,
+                     help='search all file', metavar='')
         self.parser.add_argument("-a", "--all" ,help="purge all docker containers",
                     action="store_true")
         self.parser.add_argument("-e", "--env" ,help="define .env file",
